@@ -38,11 +38,32 @@ async def upload_pdf(company_name: str = Form(...), file: UploadFile = Form(...)
         if file.content_type not in ALLOWED_MIME_TYPES:
             return JSONResponse(
                 status_code=400,
-                content={"message": "Invalid file type. Only PDF, DOC, and DOCX files are allowed."}
+                content={"message": "Invalid file type. Only PDF and DOCX files are allowed."}
             )
 
         # Define the S3 file key
         s3_file_key = f"{company_name}/{file.filename}"
+
+        # Check if the file already exists in S3
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=s3_file_key)
+            # If file exists, return its URL
+            file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{s3_file_key}"
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "File already exists in the S3 bucket.",
+                    "file_url": file_url
+                }
+            )
+        except s3_client.exceptions.ClientError as e:
+            if e.response['Error']['Code'] != '404':
+                logger.error(f"Failed to check if file exists: {str(e)}")
+                return JSONResponse(
+                    status_code=500,
+                    content={"message": "Failed to check if file exists in S3."}
+                )
+            # File doesn't exist; continue to upload
 
         # Upload the file to S3
         s3_client.upload_fileobj(
@@ -53,11 +74,12 @@ async def upload_pdf(company_name: str = Form(...), file: UploadFile = Form(...)
         )
 
         # Return success response with S3 file path
+        file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{s3_file_key}"
         return JSONResponse(
             status_code=200,
             content={
                 "message": "File uploaded successfully",
-                "file_url": f"https://{BUCKET_NAME}.s3.amazonaws.com/{s3_file_key}"
+                "file_url": file_url
             }
         )
     except NoCredentialsError:
