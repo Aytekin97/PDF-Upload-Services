@@ -1,12 +1,11 @@
-import boto3
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import JSONResponse
 from botocore.exceptions import NoCredentialsError
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from config import settings
+from loguru import logger
+import os
+import boto3
 
 
 app = FastAPI()
@@ -20,9 +19,9 @@ ALLOWED_MIME_TYPES = [
 ]
 
 # AWS S3 Configuration
-AWS_ACCESS_KEY = "YOUR_AWS_ACCESS_KEY"
-AWS_SECRET_KEY = "YOUR_AWS_SECRET_KEY"
-BUCKET_NAME = "YOUR_BUCKET_NAME"
+AWS_ACCESS_KEY = settings.aws_access_key
+AWS_SECRET_KEY = settings.aws_secret_key
+BUCKET_NAME = settings.bucket_name
 
 # S3 Client
 s3_client = boto3.client(
@@ -79,4 +78,5 @@ async def upload_pdf(company_name: str = Form(...), file: UploadFile = Form(...)
 # To run: uvicorn filename:app --reload
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
