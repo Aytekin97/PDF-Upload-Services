@@ -14,7 +14,6 @@ app.add_middleware(HTTPSRedirectMiddleware, max_body_size=50 * 1024 * 1024)  # 5
 # Allowed MIME types
 ALLOWED_MIME_TYPES = [
     "application/pdf",  # PDF
-    "application/msword",  # .doc
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"  # .docx
 ]
 
