@@ -9,7 +9,7 @@ import boto3
 
 
 app = FastAPI()
-app.add_middleware(HTTPSRedirectMiddleware, max_body_size=50 * 1024 * 1024)  # 50 MB
+app.add_middleware(HTTPSRedirectMiddleware)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = [
