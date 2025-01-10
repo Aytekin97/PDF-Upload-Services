@@ -9,7 +9,6 @@ import boto3
 
 
 app = FastAPI()
-app.add_middleware(HTTPSRedirectMiddleware)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = [
