@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import JSONResponse
 from botocore.exceptions import NoCredentialsError
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from loguru import logger
 import os
@@ -9,6 +10,14 @@ import boto3
 
 
 app = FastAPI()
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://stock-analysis-app-production.up.railway.app"],  # Frontend origin
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (POST, GET, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = [
