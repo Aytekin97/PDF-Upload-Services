@@ -58,7 +58,7 @@ async def upload_pdf(company_name: str = Form(...), file: UploadFile = Form(...)
             # If file exists, return its URL
             file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{s3_file_key}"
             return JSONResponse(
-                status_code=200,
+                status_code=409,
                 content={
                     "message": "File already exists in the S3 bucket.",
                     "file_url": file_url
